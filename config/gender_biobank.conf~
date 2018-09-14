@@ -1,0 +1,86 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Sat Jan 20
+
+@author: Salim Arslan
+"""
+
+import os, random
+
+# Environmental variables
+os.environ["CUDA_VISIBLE_DEVICES"] = '1'
+
+# Training details 
+training_mode 	= 'all' # 'otf' (on the fly data generation) or 'all' (loading them all into memory before training)
+table_sampling 	= False
+trained_model 	= None #'gender_ica100_simple_model_2018-05-11-11-58'
+train_me 	= True if trained_model == None else False
+seed 		= 101
+classify 	= True
+
+# Image directories (currently not required)
+data_dir 	= '/vol/medic02/users/sa1013/CNN_GRAPH/cnn_graph/codebase/data/biobank_gender/'
+
+# Look-up for dims
+dims 		= {'25750_2_0': 25, '25751_2_0': 100, # Full corr
+            	   '25752_2_0': 25, '25753_2_0': 100, # Partial corr
+             	   '25754_2_0': 25, '25755_2_0': 100}
+
+# Graph/supervertices parameters
+data_field 		='31-0.0'
+remove_ids 		= [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 24, 25, 26, 27, 28, 30, 32, 33, 34, 35, 36, 39, 40, 41, 42, 43, 45, 46, 47, 51, 54] #[4, 6, 8, 10, 12, 16, 27, 28, 32, 42, 43, 44, 48, 49, 53]
+indexing 		= 'column'
+conn_tag 		= '25753_2_0'
+name_supervertices 	= 'ica100'
+n_supervertices 	= 55 if remove_ids is None else 55 - len(remove_ids)
+coarsening_levels     	= 0 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
+number_edges          	= 10 # only needed if adj_path is None
+metric                	= 'correlation' # only needed if adj_path is None
+path 	      		= data_dir + 'ica_' + str(dims[conn_tag]) + '_' + conn_tag + '_' + indexing + '_k'+ str(number_edges) 
+adjacency_path 		= path + '_N.pkl' if remove_ids is None else path + ''.join(['_{}'.format(i) for i in remove_ids]) + '_N.pkl'
+graph_path 	      	= None #data_dir + 'gt_struct_' + conn_tag + '_' + name_supervertices + '_' + str(n_supervertices) + '_coarseby_' + str(coarsening_levels) + '.pkl' # provide pre-computed adjacency graph
+
+# Model parameters
+num_classes 		= 2  # number of classes
+conv_depth 		= [2, 2, 1] # how many conv layers before applying max pooling?
+filters 		= [32, 64, 128] # number of filters per layer
+K_order 		= [9, 9, 9] # list of polynomial orders, i.e. filter sizes or number of hopes
+strides 		= [1, 1, 1] # pooling size per layer (should be 1 - no pooling or a power of 2 - reduction by 2 at each coarser level)
+num_fc 			= [512, num_classes] # number of hidden neurons in FC layers
+bias			= 'b2relu'  # type of bias to use, 'b1' for one bias per filter or 'b2' for one bias per vertex per filter
+pool			= 'mpool1' # pooling, 'mpool' for max pooling or 'apool' for average pooling
+dropout			= 0.5 # dropout for last conv layers before gap, probability to keep hidden neurons (no dropout with 1, -> 0 not learning)
+filt 			= 'chebyshev5'
+gap			= True # If gap is True then there should be only one FC layer with num_classes neurons.
+batch_norm		= False  
+
+# Learning parameters
+learning_rate		= 0.001 # learning rate -> reduce learning rate proportional to the capacity of the network (higher capacity/lower lr)
+momentum 		= 0 # for momentum optimizer, 0 for adam
+regularization 		= 5e-4
+decay_rate 		= 0.5 #(default=1, no change) reduce learning rate by a factor of 0.5 every time validation accuracy drops in two consecutive eval steps
+num_epochs 		= 20
+num_steps 		= 500 # will be overwritten if training_mode is all 
+eval_frequency 		= 10
+
+# Dataset-specific parameters 
+num_subjects 		= -1
+num_images_per_class	= 100
+d 			= n_supervertices	
+batch_size 		= num_images_per_class * num_classes 
+test_ratio		= 0.1
+num_splits 		= 10
+
+# Logging
+import time, datetime
+time_stamp = datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
+model_name 		= 'gender_' + name_supervertices + '_simple_model'
+log_root 		= '/vol/medic02/users/sa1013/CNN_GRAPH/cnn_graph/codebase/log/'
+log_dir 		= log_root + trained_model if (not trained_model is None) else log_root + model_name + '_' + time_stamp 
+
+
+
+
+
+
