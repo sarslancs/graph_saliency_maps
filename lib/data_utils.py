@@ -15,11 +15,34 @@
 import numpy as np
 
 from biobank_utils import (get_ids, get_subject_labels, load_all_vectors,
-                           square_all_vectors, generate_train_val_test_IDs)
+                           square_all_vectors)
 
 from sklearn.preprocessing import minmax_scale
 from sklearn.model_selection import train_test_split
-        
+  
+
+def get_batch_data_by_copying(instance, label, batch_size):
+    '''
+    Copy values of data instance (of shape 1 x M) into a new ndarray of size 
+    batch_size x M. This is a workaround to run predict for just one 
+    subject/image.
+    '''
+    assert(instance.shape[0] == 1)
+    
+    new_data_size = tuple(j for i in (batch_size, instance.shape[1:]) for j in (i if isinstance(i, tuple) else (i,)))
+    
+    batch_data = np.zeros(new_data_size)
+    batch_label = np.zeros(batch_size)
+    
+    batch_data[0,:] = instance
+    batch_label[0] = label
+    for i in range(1, batch_size):
+        batch_data[i,:] = instance
+        batch_label[i] = label
+    
+    
+    return batch_data , batch_label.astype(np.int32) 
+      
 def map_permed_data(perm_nodes, graph_struct):
     '''
     Removes fake nodes (hence, fake grads) added by model and restores 
@@ -221,7 +244,7 @@ def get_biobank_data(conf_dict):
                                                     test_size=0.5, 
                                                     random_state=seed)
         
-                
+    print('Train, test and validation data have been loaded. ')            
     return X_train, y_train, X_val, y_val, X_test, y_test
 
 

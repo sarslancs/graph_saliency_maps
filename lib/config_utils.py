@@ -47,11 +47,10 @@ def print_config(conf_dict, save=True):
 
 
 
-def load_params_from_config(conf_dict, n_train):
+def load_params_from_config(conf_dict, n_train, trained_model_dir=None):
     
     params = dict()
     
-    params['dir_name']       = conf_dict['log_dir']
     params['num_steps']      = conf_dict['num_steps']
     params['num_epochs']     = conf_dict['num_epochs']
     params['batch_size']     = conf_dict['batch_size']
@@ -69,8 +68,6 @@ def load_params_from_config(conf_dict, n_train):
     params['M']              = conf_dict['num_fc']   # Output dimensionality of fully connected layers.
     params['d']              = conf_dict['d']        # Signal length
     params['C']              = conf_dict['conv_depth']   
-    params['gap']            = conf_dict['gap']   
-    params['batch_norm']     = conf_dict['batch_norm']   
     
     # Optimization.
     params['regularization'] = conf_dict['regularization'] 
@@ -80,6 +77,11 @@ def load_params_from_config(conf_dict, n_train):
     params['momentum']       = conf_dict['momentum'] 
     params['decay_steps']	= n_train / params['batch_size']
     params['seed']           = conf_dict['seed']    
-    params['classify']       = conf_dict['classify']
+    
+    
+    if trained_model_dir == None:
+        params['dir_name'] = conf_dict['log_dir']
+    else:
+        params['dir_name'] = trained_model_dir
     
     return params

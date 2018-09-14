@@ -1,56 +1,19 @@
-import os, pickle
+# Copyright (c) 2018 Salim Arslan <salim.arslan@imperial.ac.uk>
+# Copyright (c) 2016 Michael Defferrard <https://github.com/mdeff/cnn_graph/>
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+
+
 import numpy as np
 import scipy
-from sklearn.metrics.pairwise import pairwise_distances
-from scipy.spatial import distance
-from matplotlib import pyplot as plt
-
-"""Utility functions for graph CNNs.
-Adapted from https://github.com/mdeff/cnn_graph/tree/master/lib
-"""
-
-def alter_graph_structure(adj=None, ids=[4, 20], eps=0.001, level=0):
-    '''alter_graphs
-    '''
-    
-    assert(level <= 2)
-    
-    if isinstance(adj, scipy.sparse.csr.csr_matrix):
-        adj_full = adj.todense()
-    else:
-        adj_full = adj
-    for i in ids:
-        to_alter = np.where(adj_full[i,:]>0)[-1]
-        for node in to_alter:
-            adj[i, node] = eps
-            adj[node, i] = eps
-            
-    
-    if level == 1:
-        for i in ids:
-            to_alter_0 = np.where(adj_full[i,:]>0)[-1]
-            for node_0 in to_alter_0:
-                to_alter_1 = np.where(adj_full[node_0,:]>0)[-1]
-                for node_1 in to_alter_1:
-                    adj[node_0, node_1] = eps
-                    adj[node_1, node_0] = eps
-                    
-                    
-    if level == 2:
-        for i in ids:
-            to_alter_0 = np.where(adj_full[i,:]>0)[-1]
-            for node_0 in to_alter_0:
-                to_alter_1 = np.where(adj_full[node_0,:]>0)[-1]
-                for node_1 in to_alter_1:
-                    adj[node_0, node_1] = eps
-                    adj[node_1, node_0] = eps
-                    to_alter_2 = np.where(adj_full[node_1,:]>0)[-1]
-                    for node_2 in to_alter_2:
-                        adj[node_1, node_2] = eps
-                        adj[node_2, node_1] = eps
-        
-    
-    return adj
 
 
 def generate_graph_structure(conf_dict, X_data):
@@ -98,33 +61,13 @@ def generate_graph_structure(conf_dict, X_data):
        
     graph_struct['laplacians'] = laplacians
     graph_struct['adjacency'] = adjacency
-        
+    
+    print('Graph structure and Laplacian matrix have been computed. ')   
+    
     return graph_struct
 
 
     
-def load_adjacency(adj_name):
-    '''
-    Load adjacency graph from a pickle file (should be laready provided)
-    '''
-    
-    if os.path.exists(adj_name):   
-        if adj_name.split('.')[1] == 'mat':
-            from scipy.io import loadmat
-            data = loadmat(adj_name)
-            N = data['N']
-        elif adj_name.split('.')[1] == 'pkl':
-            try:
-                with open(adj_name) as f:  # Python 3: open(..., 'rb')
-                    N = pickle.load(f)
-            except OSError, e:
-                if e.errno != os.errno.EEXIST:
-                    raise  
-        
-        if not isinstance(N, scipy.sparse.csr.csr_matrix):
-            return scipy.sparse.csr_matrix(N.astype(np.float32))
-        return N.astype(np.float32)
-
 def coarsen_adjacency(adjacency, coarsening_levels=4):
     ''' 
     Coarsen adjacency graph and return coarsened graphs and 
@@ -143,32 +86,7 @@ def compute_laplacians(graphs):
     laplacians = [laplacian(A, normalized=True) for A in graphs]
     return laplacians
 
-def plot_adjacency(adjacency):
-    '''
-    Plot plot_adjacency
-    '''
-
-    print('d = |V| = {}, k|V| < |E| = {}'.format(adjacency.shape[0], np.sum(adjacency>0)))
-    plt.spy(adjacency, markersize=2, color='black')
-    
-
-def plot_spectrum(L, algo='eig'):
-    """
-    Plot the spectrum of a list of multi-scale Laplacians L.
-    """
-    # Algo is eig to be sure to get all eigenvalues.
-    plt.figure(figsize=(12, 5))
-    for i, lap in enumerate(L):
-        lamb, U = fourier(lap, algo)
-        step = 2**i
-        x = range(step//2, L[0].shape[0], step)
-        lb = 'L_{} spectrum in [{:1.2e}, {:1.2e}]'.format(i, lamb[0], lamb[-1])
-        plt.plot(x, lamb, '.', label=lb)
-    plt.legend(loc='best')
-    plt.xlim(0, L[0].shape[0])
-    plt.ylim(ymin=0)
-    
-    
+       
 def fourier(L, algo='eigh', k=1):
     """
     Return the Fourier basis, i.e. the EVD of the Laplacian.
@@ -191,33 +109,6 @@ def fourier(L, algo='eigh', k=1):
 
     return lamb, U
     
-
-
-def distance_sklearn_metrics(z, k=4, metric='euclidean'):
-    """
-    Compute exact pairwise distances.
-    """
-    
-    d = pairwise_distances(z, metric=metric, n_jobs=-2)
-    # k-NN graph.
-    idx = np.argsort(d)[:, 1:k+1]
-    d.sort()
-    d = d[:, 1:k+1]
-    return d, idx
-
-
-def grid(m, dtype=np.float32):
-    """Return the embedding of a grid graph."""
-    M = m**2
-    x = np.linspace(0, 1, m, dtype=dtype)
-    y = np.linspace(0, 1, m, dtype=dtype)
-    xx, yy = np.meshgrid(x, y)
-    z = np.empty((M, 2), dtype)
-    z[:, 0] = xx.reshape(M)
-    z[:, 1] = yy.reshape(M)
-    return z
-
-
 
 
 def adjacency(dist, idx):
@@ -248,36 +139,6 @@ def adjacency(dist, idx):
     assert type(W) is scipy.sparse.csr.csr_matrix
     return W
 
-
-def replace_random_edges(A, noise_level):
-    """Replace randomly chosen edges by random edges."""
-    M, M = A.shape
-    n = int(noise_level * A.nnz // 2)
-
-    indices = np.random.permutation(A.nnz//2)[:n]
-    rows = np.random.randint(0, M, n)
-    cols = np.random.randint(0, M, n)
-    vals = np.random.uniform(0, 1, n)
-    assert len(indices) == len(rows) == len(cols) == len(vals)
-
-    A_coo = scipy.sparse.triu(A, format='coo')
-    assert A_coo.nnz == A.nnz // 2
-    assert A_coo.nnz >= n
-    A = A.tolil()
-
-    for idx, row, col, val in zip(indices, rows, cols, vals):
-        old_row = A_coo.row[idx]
-        old_col = A_coo.col[idx]
-
-        A[old_row, old_col] = 0
-        A[old_col, old_row] = 0
-        A[row, col] = 1
-        A[col, row] = 1
-
-    A.setdiag(0)
-    A = A.tocsr()
-    A.eliminate_zeros()
-    return A
 
 
 def laplacian(W, normalized=True):
@@ -328,8 +189,6 @@ def coarsen(A, levels, self_connections=False):
               '|E| = {3} edges'.format(i, Mnew, Mnew-M, A.nnz//2))
 
     return graphs, perms, parents
-#    return graphs, perms[0] if levels > 0 else None
-
 
 def metis(W, levels, rid=None):
     """
@@ -591,3 +450,12 @@ def compute_knn_network(X_data, metric='correlation', k=10):
     A = adjacency(dist, idx).astype(np.float32)
     
     return A
+
+
+def rescale_L(L, lmax=2):
+    """Rescale the Laplacian eigenvalues in [-1,1]."""
+    M, M = L.shape
+    I = scipy.sparse.identity(M, format='csr', dtype=L.dtype)
+    L /= lmax / 2
+    L -= I
+    return L
