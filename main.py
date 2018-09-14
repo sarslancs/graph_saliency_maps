@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Salim Arslan <salim.ktena@imperial.ac.uk>
+# Copyright (c) 2018 Salim Arslan <salim.arslan@imperial.ac.uk>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -10,12 +10,12 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-from optparse import OptionParser
+import argparse
 
 def get_args():
-    parser = OptionParser()
-    parser.add_option('-c', '--config', dest='config', required=True,
-                      default='./config/gender_biobank.conf', type='str',
+    parser = argparse.ArgumentParser(description='Graph saliency maps using GCNs')
+    parser.add_argument('-c', '--config', dest='config', required=True,
+                      default='./config/gender_biobank.conf', type=str,
                       help='config file to start processing')
         
     (options, args) = parser.parse_args()
@@ -23,3 +23,5 @@ def get_args():
 
 if __name__ == '__main__':
     print('Hello!')
+    args = get_args()
+    print(args)
