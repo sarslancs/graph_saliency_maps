@@ -14,6 +14,7 @@ import argparse
 
 from lib.config_utils import read_config_file, print_config
 from lib.data_utils import get_biobank_data
+from lib.graph_utils import generate_graph_structure
 
 def get_args():
     parser = argparse.ArgumentParser(description='Graph saliency maps using GCNs')
@@ -29,7 +30,7 @@ if __name__ == '__main__':
     # Get args
     args = get_args()
        
-    # Read and print the config file   
+#    # Read and print the config file   
     conf_dict = read_config_file(args.config)
     print_config(conf_dict)
     
@@ -41,4 +42,7 @@ if __name__ == '__main__':
      X_val, y_val, 
      X_test, y_test) = get_biobank_data(conf_dict)
     
-    print(X_train.shape, X_val.shape, X_test.shape)
+    
+    # Generate underyling graph structure W and Laplacian matrix L
+    graph_struct = generate_graph_structure(conf_dict, X_train)
+    laplacians = graph_struct['laplacians']

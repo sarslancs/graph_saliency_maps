@@ -52,8 +52,8 @@ def alter_graph_structure(adj=None, ids=[4, 20], eps=0.001, level=0):
     
     return adj
 
-# TODO: Ideally this should be in a Graph class
-def generate_graph_structure(conf_dict, verbose=False):
+
+def generate_graph_structure(conf_dict, X_data):
     '''
     Read parameters from conf_dict and generate graph 
     structure and apply coarsening
@@ -62,6 +62,8 @@ def generate_graph_structure(conf_dict, verbose=False):
     ----------
     conf_dict : dict
         dictionary holding all parameters
+    X_data : ndarray
+        data matrix for training subjects
         
     Returns
     -------
@@ -71,119 +73,32 @@ def generate_graph_structure(conf_dict, verbose=False):
     '''
     
     
-    # Get graph-related variables
-    graph_name = conf_dict['graph_path']
+    # Graph parameters
+    coarsening_levels   = conf_dict['coarsening_levels']
+    number_edges        = conf_dict['number_edges'] # only needed if adj_path is None
+    metric              = conf_dict['metric'] # only needed if adj_path is None
     
-    if graph_name is not None:
-        print('graph_struct exists, loading from disk...')
-        with open(graph_name) as f:  # Python 3: open(..., 'rb')
-            graph_struct = pickle.load(f)        
-    else:
-        # Graph parameters
-        adjacency_path      = conf_dict['adjacency_path']
-        coarsening_levels   = conf_dict['coarsening_levels']
-        number_edges        = conf_dict['number_edges'] # only needed if adj_path is None
-        metric              = conf_dict['metric'] # only needed if adj_path is None
-        
-        if adjacency_path is None:
-#            if 'networks' in graph_struct.keys(): # we are doing UK biobank
-#                networks = conf_dict['networks']
-#                adjacency = compute_graph_structure_for_networks(networks,
-#                                                                 metric)
-#            else:
-            adjacency = grid_graph(m=28, number_edges=number_edges,
-                                       metric=metric, corners=False)
-        else:
-            adjacency = load_adjacency(adjacency_path)
-        
-        #adjacency[adjacency>0] = 1
-#        saved = adjacency[4,20]
-#        ids = [4]
-#        ids = [1, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 15, 18, 20, 21, 24, 25, 26, 
-#               27, 28, 30, 32, 33, 34, 35, 36, 39, 40, 41, 42, 43, 45, 46, 47, 51, 54] -> test acc down 73
-#        adjacency = alter_graph_structure(adjacency, ids, eps=0, level=0)
-#        adjacency[4,20] = saved
-#        adjacency[20,4] = saved
+    adjacency = compute_knn_network(X_data, metric, number_edges)
 
+    graph_struct = {}
+    if coarsening_levels > 0:        
+        graphs, perms, parents = coarsen_adjacency(adjacency, 
+                                                   coarsening_levels)
+        graph_struct['graphs'] = graphs
+        graph_struct['perm'] = perms[0]
+        graph_struct['perms'] = perms
+        graph_struct['parents'] = parents
+    
+    else:
+        graphs = []
+        for i in range(len(conf_dict['conv_depth'])):
+            graphs.append(adjacency)
+    
+    laplacians = compute_laplacians(graphs)
+       
+    graph_struct['laplacians'] = laplacians
+    graph_struct['adjacency'] = adjacency
         
-#        ids = [4, 6, 8, 10, 12, 16, 27, 28, 32, 42, 43, 44, 48, 49, 53]
-#        for i in ids:
-#            adjacency[20,i] = 0.001
-#            adjacency[i,20] = 0.001
-##            neighs = np.where(adj[i,:] > 0)[-1]
-##            for neigh in neighs:
-##                adjacency[neigh,i] = 0.001
-##                adjacency[i,20] = 0.001
-#        #4    
-#        ids = [6, 7, 8, 11, 12, 16, 19, 20, 29, 35, 38, 39, 45, 48, 52, 54]
-#        for i in ids:
-#            adjacency[4,i] = 0.001
-#            adjacency[i,4] = 0.001
-#            
-#        #6
-#        ids = [ 4,  5,  8,  9, 10, 12, 20, 29, 31, 35, 42, 44, 48, 52, 54]
-#        for i in ids:
-#            adjacency[6,i] = 0.001
-#            adjacency[i,6] = 0.001
-#            
-#        #52
-#        ids = [ 0,  4,  6,  9, 10, 12, 14, 18, 35, 46, 48, 54]
-#        for i in ids:
-#            adjacency[52,i] = 0.001
-#            adjacency[i,52] = 0.001
-            
-        graph_struct = {}
-        if coarsening_levels > 0:        
-            graphs, perms, parents = coarsen_adjacency(adjacency, 
-                                                       coarsening_levels)
-            graph_struct['graphs'] = graphs
-            graph_struct['perm'] = perms[0]
-            graph_struct['perms'] = perms
-            graph_struct['parents'] = parents
-        
-        else:
-            graphs = []
-            for i in range(len(conf_dict['conv_depth'])):
-                graphs.append(adjacency)
-        
-        laplacians = compute_laplacians(graphs)
-        
-        graph_struct['laplacians'] = laplacians
-        graph_struct['adjacency'] = adjacency.copy()
-        
-        name_supervertices = conf_dict['name_supervertices']
-        n_supervertices = conf_dict['n_supervertices']
-        
-        #Save data
-        print('graph_struct is computed. Saving to disk...')
-        save_path = conf_dict['data_dir'] + '/'     
-        if name_supervertices[:3] == 'ica':
-            with open(save_path + '/gt_struct_' + \
-                      conf_dict['conn_tag'] + '_' + \
-                      name_supervertices + '_' + \
-                      str(n_supervertices) + '_coarseby_' + \
-                      str(coarsening_levels) + '.pkl', 'w') as f:
-                pickle.dump(graph_struct, f)
-        elif name_supervertices == 'ho':
-            with open(save_path + '/gt_struct_' + \
-                      name_supervertices + '_' + \
-                      conf_dict['method'] + '_' + \
-                      conf_dict['conn_tag'] + '_' + \
-                      str(n_supervertices) + '_coarseby_' + \
-                      str(coarsening_levels) + '.pkl', 'w') as f:
-                pickle.dump(graph_struct, f)
-        else:    
-            with open(save_path + '/gt_struct_' + \
-                      name_supervertices + '_' + \
-                      conf_dict['conn_tag'] + '_' + \
-                      str(n_supervertices) + '_coarseby_' + \
-                      str(coarsening_levels) + '.pkl', 'w') as f:
-                pickle.dump(graph_struct, f)
-     
-    if verbose:
-        plot_adjacency(graph_struct['adjacency'])   
-        plot_spectrum(graph_struct['laplacians'])
-        plt.show()
     return graph_struct
 
 
@@ -276,25 +191,6 @@ def fourier(L, algo='eigh', k=1):
 
     return lamb, U
     
-def grid_graph(m=28, number_edges=8, metric='euclidean', corners=False):
-    ''' 
-    Create the regular image grid that is going to define the graph structure 
-    '''
-    z = grid(m)
-    dist, idx = distance_sklearn_metrics(z, k=number_edges, metric=metric)
-    A = adjacency(dist, idx)
-
-    # Connections are only vertical or horizontal on the grid.
-    # Corner vertices are connected to 2 neightbors only.
-    if corners:
-        import scipy.sparse
-        A = A.toarray()
-        A[A < A.max()/1.5] = 0
-        A = scipy.sparse.csr_matrix(A)
-        print('{} edges'.format(A.nnz))
-
-    print("|E| = {} > k|V| = {}".format(A.nnz//2, number_edges*m**2//2))
-    return A
 
 
 def distance_sklearn_metrics(z, k=4, metric='euclidean'):
@@ -685,3 +581,13 @@ def distance_scipy_spatial(z, k=4, metric='euclidean'):
     return d, idx
 
 
+def compute_knn_network(X_data, metric='correlation', k=10):
+    '''
+    Compute knn graph for all subjects given in X_data 
+    '''
+    
+    d = np.mean(np.array(X_data), axis=0)        
+    dist, idx = distance_scipy_spatial(d, k=k, metric=metric)
+    A = adjacency(dist, idx).astype(np.float32)
+    
+    return A
