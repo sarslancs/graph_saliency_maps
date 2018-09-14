@@ -39,8 +39,6 @@ bias			= 'b2relu'  # type of bias to use, 'b1' for one bias per filter or 'b2' f
 pool			= 'mpool1' # pooling, 'mpool' for max pooling or 'apool' for average pooling
 dropout			= 0.5 # dropout for last conv layers before gap, probability to keep hidden neurons (no dropout with 1, -> 0 not learning)
 filt 			= 'chebyshev5'
-gap			= True # If gap is True then there should be only one FC layer with num_classes neurons.
-batch_norm		= False  
 
 # Learning parameters
 learning_rate		= 0.001 # learning rate -> reduce learning rate proportional to the capacity of the network (higher capacity/lower lr)

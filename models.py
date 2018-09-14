@@ -225,7 +225,6 @@ class base_model(object):
                 
         num_steps = self.num_steps
         for step in range(1, num_steps+1):
-
             # Be sure to have used all the samples before using one a second time.
             if len(indices) < self.batch_size:
                 indices.extend(np.random.permutation(train_data.shape[0]))
@@ -576,7 +575,6 @@ class base_model(object):
             tf.summary.scalar('learning_rate', self.ph_learning_rate)
             # Optimizer.
             if momentum == 0:
-                # optimizer = tf.train.GradientDescentOptimizer(learning_rate)
                 optimizer = tf.train.AdamOptimizer(self.ph_learning_rate)
             else:
                 optimizer = tf.train.MomentumOptimizer(self.ph_learning_rate, momentum)
@@ -1063,7 +1061,7 @@ class cgcnn(base_model):
         pool: pooling, e.g. mpool1.
     
     Training parameters:
-        num_epochs:    Number of training epochs.
+        num_steps:    Number of training steps.
         learning_rate: Initial learning rate.
         decay_rate:    Base of exponential decay. No decay with 1.
         decay_steps:   Number of steps after which the learning rate decays.
@@ -1079,7 +1077,7 @@ class cgcnn(base_model):
         dir_name: Name for directories (summaries and model parameters).
     """
     def __init__(self, L, F, K, p, M, C, d=1, filter='chebyshev5', 
-                 brelu='b1relu', pool='mpool1', num_steps=1000, num_epochs=20, 
+                 brelu='b1relu', pool='mpool1', num_steps=1000, 
                  learning_rate=0.1, decay_rate=0.95, decay_steps=None, seed=0,
                  momentum=0.9, regularization=0, dropout=0, batch_size=100, 
                  eval_frequency=200, dir_name=''):
@@ -1135,7 +1133,7 @@ class cgcnn(base_model):
         # Store attributes and bind operations.
         self.L, self.F, self.K, self.p, self.M, self.C = L, F, K, p, M, C
         self.num_steps = num_steps
-        self.num_epochs, self.learning_rate = num_epochs, learning_rate
+        self.learning_rate = learning_rate
         self.decay_rate, self.decay_steps, self.momentum = decay_rate, decay_steps, momentum
         self.regularization, self.dropout = regularization, dropout
         self.batch_size, self.eval_frequency = batch_size, eval_frequency

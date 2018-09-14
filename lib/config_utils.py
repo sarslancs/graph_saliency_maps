@@ -52,7 +52,6 @@ def load_params_from_config(conf_dict, n_train, trained_model_dir=None):
     params = dict()
     
     params['num_steps']      = conf_dict['num_steps']
-    params['num_epochs']     = conf_dict['num_epochs']
     params['batch_size']     = conf_dict['batch_size']
     params['eval_frequency'] = conf_dict['eval_frequency']
     
