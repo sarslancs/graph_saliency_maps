@@ -12,16 +12,23 @@
 
 import argparse
 
+from lib import config_utils
+
 def get_args():
     parser = argparse.ArgumentParser(description='Graph saliency maps using GCNs')
     parser.add_argument('-c', '--config', dest='config', required=True,
                       default='./config/gender_biobank.conf', type=str,
                       help='config file to start processing')
         
-    (options, args) = parser.parse_args()
-    return options
+    args = parser.parse_args()
+    return args
 
 if __name__ == '__main__':
-    print('Hello!')
+    
+    # Get args
     args = get_args()
-    print(args)
+    
+    
+    # Read and print the config file   
+    conf_dict = config_utils.read_config_file(args.config)
+    config_utils.print_config(conf_dict)
