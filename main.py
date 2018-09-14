@@ -12,7 +12,8 @@
 
 import argparse
 
-from lib import config_utils
+from lib.config_utils import read_config_file, print_config
+from lib.data_utils import get_biobank_data
 
 def get_args():
     parser = argparse.ArgumentParser(description='Graph saliency maps using GCNs')
@@ -27,8 +28,17 @@ if __name__ == '__main__':
     
     # Get args
     args = get_args()
-    
-    
+       
     # Read and print the config file   
-    conf_dict = config_utils.read_config_file(args.config)
-    config_utils.print_config(conf_dict)
+    conf_dict = read_config_file(args.config)
+    print_config(conf_dict)
+    
+    # Load data based on config file. 
+    # Change the function according to your data setup.
+    # X_Data should of of shape (n, dx, dy), with n, dx, dy being the number 
+    # of subjects, nodes, and features, respectively
+    (X_train, y_train, 
+     X_val, y_val, 
+     X_test, y_test) = get_biobank_data(conf_dict)
+    
+    print(X_train.shape, X_val.shape, X_test.shape)

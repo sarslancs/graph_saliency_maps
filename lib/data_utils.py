@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Salim Arslan <salim.ktena@imperial.ac.uk>
+# Copyright (c) 2018 Salim Arslan <salim.arslan@imperial.ac.uk>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -14,7 +14,7 @@
 
 import numpy as np
 
-from biobank_utils import (get_ids, get_subject_label, load_all_vectors,
+from biobank_utils import (get_ids, get_subject_labels, load_all_vectors,
                            square_all_vectors, generate_train_val_test_IDs)
 
 from sklearn.preprocessing import minmax_scale
@@ -187,57 +187,39 @@ def get_biobank_data(conf_dict):
     Get biobank data all in one go
     '''
  
-    # Number of subjects
-    num_subjects = conf_dict['num_subjects']
-    
-    # conn_tag look-up table -> http://www.fmrib.ox.ac.uk/ukbiobank/
-    # 25750-2.0	rfMRI full correlation matrix, dimension 25
-    # 25751-2.0	rfMRI full correlation matrix, dimension 100
-    # 25752-2.0	rfMRI partial correlation matrix, dimension 25
-    # 25753-2.0	rfMRI partial correlation matrix, dimension 100
-    # 25754-2.0	rfMRI component amplitudes, dimension 25
-    # 25755-2.0	rfMRI component amplitudes, dimension 100
-    
-    # Which network modelling
+    # Get variables from config
     conn_tag = conf_dict['conn_tag']
-
+    data_dir = conf_dict['data_dir']
+    csv_path = conf_dict['csv_path']
+    data_field = conf_dict['data_field']
+    num_subjects = conf_dict['num_subjects']
+    indexing = conf_dict['indexing'] 
+    test_ratio = conf_dict['test_ratio']
+    seed = conf_dict['seed']
+    
     # Get subject IDs
-    subject_ids = sorted(get_ids(conn_tag=conn_tag)[:num_subjects])
-    label_dict, subject_ids = get_subject_label(subject_ids, 
-                                                label_name=conf_dict['data_field'])
+    subject_ids = get_ids(conn_tag=conn_tag, data_dir=data_dir)[:num_subjects]
+    
+    # Load labels and update subject_ids based on data field validity
+    label_dict, subject_ids = get_subject_labels(subject_ids, data_field, 
+                                                 csv_path)
     y_data = np.array([int(label_dict[x]) for x in subject_ids])
     
-    vectors = load_all_vectors(subject_ids, tag=conn_tag)
+    # Load data as vectors
+    vectors = load_all_vectors(subject_ids, conn_tag, data_dir)
      
-    X_data = square_all_vectors(vectors, indexing=conf_dict['indexing'], 
-                                remove_ids=conf_dict['remove_ids'])
+    # Convert vectors to matrices, pay attention to index mapping
+    X_data = square_all_vectors(vectors, indexing=indexing)
     
-    
-    if conf_dict['data_field'] == '31-0.0':
-        (train_IDs, 
-         test_IDs, 
-         val_IDs) = generate_train_val_test_IDs(subject_ids, y_data, 
-                                                conf_dict['test_ratio'],
-                                                seed=conf_dict['seed'])
-        print(test_IDs)
-        
-        X_train, y_train = X_data[train_IDs], y_data[train_IDs]   
-        X_val, y_val = X_data[val_IDs], y_data[val_IDs]   
-        X_test, y_test = X_data[test_IDs], y_data[test_IDs]   
-    
-    elif (conf_dict['data_field'].startswith('21003') or 
-          conf_dict['data_field'].startswith('20016')):  
-        # Split train/test-validation
-        y_data = y_data.astype(np.float32)
-        X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, 
-                                                            test_size=conf_dict['test_ratio'], 
-                                                            random_state=conf_dict['seed'])
-                    
-        # Split validation/test 
-        val_ratio = 0.5 #half of 0.2
-        X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, 
-                                                        test_size=val_ratio, 
-                                                        random_state=conf_dict['seed'])
+    # Split train/test 0.8/0.2 by default
+    X_train, X_test, y_train, y_test = train_test_split(X_data, y_data, 
+                                                        test_size=test_ratio, 
+                                                        random_state=seed)
+                
+    # Split validation/test keep half of test for validation
+    X_test, X_val, y_test, y_val = train_test_split(X_test, y_test, 
+                                                    test_size=0.5, 
+                                                    random_state=seed)
         
                 
     return X_train, y_train, X_val, y_val, X_test, y_test

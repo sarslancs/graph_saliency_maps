@@ -77,7 +77,7 @@ num_subjects 		= -1
 num_images_per_class	= 100
 d 			= n_supervertices	
 batch_size 		= num_images_per_class * num_classes 
-test_ratio		= 0.2 # Half of it is used for validation
+test_ratio		= 0.2
 num_splits 		= 10
 
 # Logging
