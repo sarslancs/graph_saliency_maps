@@ -10,6 +10,16 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
+from optparse import OptionParser
+
+def get_args():
+    parser = OptionParser()
+    parser.add_option('-c', '--config', dest='config', required=True,
+                      default='./config/gender_biobank.conf', type='str',
+                      help='config file to start processing')
+        
+    (options, args) = parser.parse_args()
+    return options
 
 if __name__ == '__main__':
     print('Hello!')
