@@ -73,7 +73,8 @@ if __name__ == '__main__':
     laplacians = graph_struct['laplacians']
     
     # Load model parameters for GCN     
-    params = load_params_from_config(conf_dict, len(X_train))
+    
+    params = load_params_from_config(conf_dict, len(X_train), args.model_path)
     
     # Build the GCN model
     model = models.cgcnn(laplacians, **params)
