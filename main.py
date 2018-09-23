@@ -14,6 +14,8 @@ import argparse
 
 import models
 
+import os
+
 from lib.visualizer import monitor_training
 from lib.config_utils import (read_config_file, print_config, 
                               load_params_from_config)
@@ -55,6 +57,11 @@ if __name__ == '__main__':
     
     # Get args
     args = get_args()
+    
+    # Check if a model is given and if yes, it is valid
+    if args.model_path != None:
+        assert os.path.exists(args.model_path), \
+              args.model_path + ' does not exist'
        
     # Read and print the config file   
     conf_dict = read_config_file(args.config)
@@ -73,7 +80,6 @@ if __name__ == '__main__':
     laplacians = graph_struct['laplacians']
     
     # Load model parameters for GCN     
-    
     params = load_params_from_config(conf_dict, len(X_train), args.model_path)
     
     # Build the GCN model
@@ -81,7 +87,13 @@ if __name__ == '__main__':
     
     # Train a model if no model provided
     if args.model_path == None:
+        print('Running in training mode')
+        print('')
         t_accuracy, t_loss, _, _, _ = train(X_train, y_train, X_val, y_val, 
                                             model, True)    
+    else:
+        print('Running in test mode')
+        print('')
+    
     # Test a model
     predictions, loss = test(X_test, y_test, model, True)

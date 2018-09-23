@@ -536,10 +536,6 @@ class cgcnn(base_model):
     L: List of Graph Laplacians. Size M x M. One per coarsening level.
     d: length of 'signal' i.e. 3rd dimensionality of tensor (added by SA)
     
-    The following are hyper-parameters of fully connected layers.
-    They are lists, which length is equal to the number of fc layers.
-        M: Number of features per sample, i.e. number of hidden neurons.
-           The last layer is the softmax, i.e. M[-1] is the number of classes.
     
     The following are choices of implementation for various blocks.
         filter: filtering operation, e.g. chebyshev5, lanczos2 etc.
@@ -562,7 +558,7 @@ class cgcnn(base_model):
     Directories:
         dir_name: Name for directories (summaries and model parameters).
     """
-    def __init__(self, L, F, K, p, M, C, d=1, filter='chebyshev5', 
+    def __init__(self, L, F, K, p, num_classes, C, d=1, filter='chebyshev5', 
                  brelu='b1relu', pool='mpool1', num_steps=1000, 
                  learning_rate=0.1, decay_rate=0.95, decay_steps=None, seed=0,
                  momentum=0.9, regularization=0, dropout=0, batch_size=100, 
@@ -609,14 +605,15 @@ class cgcnn(base_model):
         
         print('  layer {}: {}'.format(Ngconv+i+1, 'logits (softmax)'))
         print('    representation: M_{} = {}'.format(Ngconv+i+1, 
-              M[-1]))
+              num_classes))
         print('    weights: M_{} * M_{} = {} * {} = {}'.format(
-                Ngconv+i, Ngconv+i+1, M_gap, M[-1], M[-1]*M_gap))
-        print('    biases: M_{} = {}'.format(Ngconv+i+1, M[-1]))
+                Ngconv+i, Ngconv+i+1, M_gap, num_classes, num_classes*M_gap))
+        print('    biases: M_{} = {}'.format(Ngconv+i+1, num_classes))
 
         
         # Store attributes and bind operations.
-        self.L, self.F, self.K, self.p, self.M, self.C = L, F, K, p, M, C
+        self.L, self.F, self.K, self.p, self.C = L, F, K, p, C
+        self.num_classes = num_classes
         self.num_steps = num_steps
         self.learning_rate = learning_rate
         self.decay_rate, self.decay_steps, self.momentum = decay_rate, decay_steps, momentum
@@ -773,7 +770,7 @@ class cgcnn(base_model):
             self.gap = tf.reduce_mean(x, axis=[1])
                 
             # Logits linear layer, i.e. softmax without normalization.
-            self.logits = self.fc(self.gap, self.M[-1], relu=False)
+            self.logits = self.fc(self.gap, self.num_classes, relu=False)
             
         with tf.variable_scope('cam', reuse=True): # CAM
             self.cam_fc_value = tf.nn.bias_add(tf.get_variable('weights'), 

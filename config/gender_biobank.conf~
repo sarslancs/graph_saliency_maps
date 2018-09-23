@@ -45,9 +45,8 @@ learning_rate		= 0.001 # learning rate -> reduce learning rate proportional to t
 momentum 		= 0 # for momentum optimizer, 0 for adam
 regularization 		= 5e-4
 decay_rate 		= 0.5 #(default=1, no change) reduce learning rate by a factor of 0.5 every time validation accuracy drops in two consecutive eval steps
-num_epochs 		= 20
 num_steps 		= 500 # will be overwritten if training_mode is all 
-eval_frequency 		= 10
+eval_frequency 		= 10 # evaluate model every this many steps
 
 # Dataset-specific parameters 
 num_subjects 		= -1

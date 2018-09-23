@@ -10,7 +10,6 @@
 # The above copyright notice and this permission notice shall be included in all
 # copies or substantial portions of the Software.
 
-import os
 
 def read_config_file(conf_path):
     '''
@@ -22,28 +21,15 @@ def read_config_file(conf_path):
     return conf_dict
 
 
-def print_config(conf_dict, save=True):
+def print_config(conf_dict):
     '''
     Print all variables in config dict
     '''
     
-    if save:
-        log_dir = conf_dict['log_dir']
-   
-        if not os.path.exists(log_dir):
-            os.makedirs(log_dir)
-    
-        with open(log_dir + '/parameters', 'w') as file:
-            for key in conf_dict.keys():
-                if not key in ['__builtins__', '__doc__', 'os']:
-                    string = " %-20s => %-15s" % (key, conf_dict[key])
-                    print string
-                    file.write(string + '\n')
-            file.close() 
-    else:
-        for key in conf_dict.keys():
-            if not key in ['__builtins__', '__doc__', 'os']:
-                print(" %-20s => %-15s" % (key, conf_dict[key]))
+    for key in conf_dict.keys():
+        if not key in ['__builtins__', '__doc__', 'os', 'random', 'datetime',
+                       'time']:
+            print(" %-20s => %-15s" % (key, conf_dict[key]))
 
 
 
@@ -64,9 +50,9 @@ def load_params_from_config(conf_dict, n_train, trained_model_dir=None):
     params['F']              = conf_dict['filters']  # Number of graph convolutional filters.
     params['K']              = conf_dict['K_order']  # Polynomial orders.
     params['p']              = conf_dict['strides']  # Pooling sizes.
-    params['M']              = conf_dict['num_fc']   # Output dimensionality of fully connected layers.
     params['d']              = conf_dict['d']        # Signal length
-    params['C']              = conf_dict['conv_depth']   
+    params['C']              = conf_dict['conv_depth']   # Number of conv layers befroe applying pooling
+    params['num_classes']    = conf_dict['num_classes']   # Number of classes
     
     # Optimization.
     params['regularization'] = conf_dict['regularization'] 
