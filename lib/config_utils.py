@@ -25,7 +25,7 @@ def print_config(conf_dict):
     '''
     Print all variables in config dict
     '''
-    
+    print('Parameters in config file:')
     for key in conf_dict.keys():
         if not key in ['__builtins__', '__doc__', 'os', 'random', 'datetime',
                        'time']:

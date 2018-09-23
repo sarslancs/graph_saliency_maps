@@ -210,8 +210,8 @@ class base_model(object):
         path = os.path.join(self._get_path('checkpoints'), 'model')
         sess.run(self.op_init)
 
-        # Generate train data for eval
-        print('Generating a train dataset for monitoring training just for once.')
+        # Generate subset of train data for eval
+        print('Generating a subset of train dataset for monitoring training.')
         start_time = time.time()
         idx_eval = np.random.choice(train_data.shape[0], val_data.shape[0])
         train_data_eval = train_data[idx_eval,:]
