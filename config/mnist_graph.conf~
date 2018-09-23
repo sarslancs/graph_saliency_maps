@@ -27,7 +27,7 @@ seed 			= 101 # Keep it the same for reproducible data splits
 
 # Model parameters
 num_classes 		= 10  # number of classes
-conv_depth 		= [1, 1, 1] # how many conv layers before applying max pooling?
+conv_depth 		= [2, 2, 1] # how many conv layers before applying max pooling?
 filters 		= [32, 64, 128] # number of filters per layer
 K_order 		= [25, 25, 25] # list of polynomial orders, i.e. filter sizes or number of hopes
 strides 		= [1, 1, 1] # pooling size per layer (should be 1 - no pooling or a power of 2 - reduction by 2 at each coarser level)

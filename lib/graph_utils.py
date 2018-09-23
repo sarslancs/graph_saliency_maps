@@ -14,7 +14,7 @@
 
 import numpy as np
 import scipy
-
+from sklearn.metrics.pairwise import pairwise_distances
 
 def generate_graph_structure(conf_dict, X_data):
     '''
@@ -459,3 +459,47 @@ def rescale_L(L, lmax=2):
     L /= lmax / 2
     L -= I
     return L
+
+
+def grid_graph(m=28, number_edges=8, metric='euclidean', corners=False):
+    ''' 
+    Create the regular image grid that is going to define the graph structure 
+    '''
+    z = grid(m)
+    dist, idx = distance_sklearn_metrics(z, k=number_edges, metric=metric)
+    A = adjacency(dist, idx)
+
+    # Connections are only vertical or horizontal on the grid.
+    # Corner vertices are connected to 2 neightbors only.
+    if corners:
+        import scipy.sparse
+        A = A.toarray()
+        A[A < A.max()/1.5] = 0
+        A = scipy.sparse.csr_matrix(A)
+        print('{} edges'.format(A.nnz))
+
+    print("|E| = {} > k|V| = {}".format(A.nnz//2, number_edges*m**2//2))
+    return A
+
+def distance_sklearn_metrics(z, k=4, metric='euclidean'):
+    """
+    Compute exact pairwise distances.
+    """
+    
+    d = pairwise_distances(z, metric=metric, n_jobs=-2)
+    # k-NN graph.
+    idx = np.argsort(d)[:, 1:k+1]
+    d.sort()
+    d = d[:, 1:k+1]
+    return d, idx
+
+def grid(m, dtype=np.float32):
+    """Return the embedding of a grid graph."""
+    M = m**2
+    x = np.linspace(0, 1, m, dtype=dtype)
+    y = np.linspace(0, 1, m, dtype=dtype)
+    xx, yy = np.meshgrid(x, y)
+    z = np.empty((M, 2), dtype)
+    z[:, 0] = xx.reshape(M)
+    z[:, 1] = yy.reshape(M)
+    return z

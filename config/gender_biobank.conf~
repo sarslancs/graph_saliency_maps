@@ -24,7 +24,7 @@ data_field 		='31-0.0' # UK biobank data field
 indexing 		= 'column'
 conn_tag 		= '25753_2_0' # type of network modelling applied to rs-fMRI functional connectivity. See http://www.fmrib.ox.ac.uk/ukbiobank/ for details
 coarsening_levels     	= 0 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
-number_edges          	= 10 # only needed if adj_path is None
+number_edges          	= 10 # k of knn
 metric                	= 'correlation' # only needed if adj_path is None
 seed 			= 101 # Keep it the same for reproducible data splits
 
@@ -34,27 +34,25 @@ conv_depth 		= [2, 2, 1] # how many conv layers before applying max pooling?
 filters 		= [32, 64, 128] # number of filters per layer
 K_order 		= [9, 9, 9] # list of polynomial orders, i.e. filter sizes or number of hopes
 strides 		= [1, 1, 1] # pooling size per layer (should be 1 - no pooling or a power of 2 - reduction by 2 at each coarser level)
-num_fc 			= [512, num_classes] # number of hidden neurons in FC layers
 bias			= 'b2relu'  # type of bias to use, 'b1' for one bias per filter or 'b2' for one bias per vertex per filter
 pool			= 'mpool1' # pooling, 'mpool' for max pooling or 'apool' for average pooling
 dropout			= 0.5 # dropout for last conv layers before gap, probability to keep hidden neurons (no dropout with 1, -> 0 not learning)
-filt 			= 'chebyshev5'
+filt 			= 'chebyshev5' # parameterizing 
 
 # Learning parameters
 learning_rate		= 0.001 # learning rate -> reduce learning rate proportional to the capacity of the network (higher capacity/lower lr)
 momentum 		= 0 # for momentum optimizer, 0 for adam
-regularization 		= 5e-4
+regularization 		= 5e-4 # weight decay
 decay_rate 		= 0.5 #(default=1, no change) reduce learning rate by a factor of 0.5 every time validation accuracy drops in two consecutive eval steps
 num_steps 		= 500 # will be overwritten if training_mode is all 
 eval_frequency 		= 10 # evaluate model every this many steps
 
 # Dataset-specific parameters 
-num_subjects 		= -1
-num_images_per_class	= 100
+num_subjects 		= -1 # number of subjects to use, -1 for all
+num_images_per_class	= 100 # number of images per class
 d 			= 55	
 batch_size 		= num_images_per_class * num_classes 
 test_ratio		= 0.2 # Half of it is used for validation
-num_splits 		= 10
 
 # Logging
 import time, datetime
