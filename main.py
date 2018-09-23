@@ -33,6 +33,7 @@ def train(X_train, y_train, X_val, y_val, model, verbose=False):
                                                                X_val, 
                                                                y_val)
     if verbose:
+        print('Close figure to continue in terminal mode...')
         monitor_training(t_accuracy, t_loss, v_accuracy, v_loss)
         
     return t_accuracy, t_loss, v_accuracy, v_loss, t_step 
@@ -104,14 +105,14 @@ if __name__ == '__main__':
     predictions, loss = test(X_test, y_test, model, True)
     
     # Acquire class avtivations for all test subjects
-    print('Compute CAMs for all subjects...')
+    print('Computing CAMs for all subjects...')
     cams_op_0, _ = cam_multiple_images(X_test, y_test, 0, model,
                                        graph_struct=graph_struct)    
     cams_op_1, _ = cam_multiple_images(X_test, y_test, 1, model,
                                        graph_struct=graph_struct)
     
     # Obtain population-level saliency maps 
-    print('Compute population-level saliency maps ..')
+    print('Generating population-level saliency maps ..')
     counts, _ = argmax_k(cams_op_0, k=3, d=conf_dict['d'])
     graph_saliency_0 = compute_roi_frequency(counts, d=conf_dict['d'])
     counts, _ = argmax_k(cams_op_1, k=3, d=conf_dict['d'])
