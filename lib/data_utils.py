@@ -42,6 +42,56 @@ def get_batch_data_by_copying(instance, label, batch_size):
     
     
     return batch_data , batch_label.astype(np.int32) 
+
+def compute_cam_heatmap(cam_convs, cam_weights, pred, graph_struct):
+    '''
+    Given cam weights and convolutional feature maps, upsample and project them 
+    to the original space
+    
+    '''
+    if 'perms' in graph_struct.keys():
+        cam_convs_up = np.zeros((len(graph_struct['perms'][0]), cam_convs.shape[1]))
+        # Upsample
+        for i in range(cam_convs.shape[1]):
+            cam_convs_up[:, i] = upsample_graph(cam_convs[:,i], graph_struct) 
+    else:
+        cam_convs_up = cam_convs
+        
+    # return and visualise all activation maps
+    cam_perm = np.matmul(cam_convs_up, cam_weights.transpose()[pred])
+       
+    if 'perms' in graph_struct.keys():
+        cam_perm = map_permed_data(cam_perm, graph_struct)
+        # return upsampled conv feature maps for visualisation
+        cam_conv_maps = np.zeros((graph_struct['adjacency'].shape[0], 
+                                  cam_convs_up.shape[1]))
+        
+        for i in range(cam_convs.shape[1]):
+            cam_conv_maps[:,i] = map_permed_data(cam_convs_up[:,i], graph_struct)
+            
+        return  cam_perm, cam_conv_maps   
+    else:
+        return cam_perm, cam_convs_up
+    
+    
+def upsample_graph(low_dim_data, graph_struct):
+    '''
+    Upsample data based on Fig 2 on the original paper
+    @https://arxiv.org/pdf/1606.09375.pdf
+    '''
+    
+    perms = graph_struct['perms']
+    perms0 = perms[0]
+    upto = len(perms[0]) // low_dim_data.shape[0] # This makes computation invariant of input size
+    upsampled_data = np.zeros(len(perms0))
+    
+    level = np.log2(upto).astype(int)
+    for i in range(len(perms[level])):
+        ids = range(i*upto,(i+1)*upto)
+        for j in ids:
+            upsampled_data[j] = low_dim_data[i]
+    
+    return upsampled_data  
       
 def map_permed_data(perm_nodes, graph_struct):
     '''
@@ -181,28 +231,6 @@ def get_data_instance_for_test(data, labels, idx):
     instance = np.reshape(data[idx,:], new_data_size)
 
     return instance, labels[idx]
-
-def get_batch_data_by_copying(instance, label, batch_size):
-    '''
-    Copy values of data instance (of shape 1 x M) into a new ndarray of size 
-    batch_size x M. This is a workaround to run predict for just one 
-    subject/image.
-    '''
-    assert(instance.shape[0] == 1)
-    
-    new_data_size = tuple(j for i in (batch_size, instance.shape[1:]) for j in (i if isinstance(i, tuple) else (i,)))
-    
-    batch_data = np.zeros(new_data_size)
-    batch_label = np.zeros(batch_size)
-    
-    batch_data[0,:] = instance
-    batch_label[0] = label
-    for i in range(1, batch_size):
-        batch_data[i,:] = instance
-        batch_label[i] = label
-    
-    
-    return batch_data , batch_label.astype(np.int32)   
 
     
 def get_biobank_data(conf_dict):

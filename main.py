@@ -22,6 +22,8 @@ from lib.config_utils import (read_config_file, print_config,
 from lib.data_utils import get_biobank_data
 from lib.graph_utils import generate_graph_structure
 
+from lib.cam_utils import argmax_k, compute_roi_frequency, cam_multiple_images
+
 def train(X_train, y_train, X_val, y_val, model, verbose=False):
     '''
     Train model and show some stats
@@ -41,6 +43,7 @@ def test(X_test, y_test, model, verbose=False):
     '''
     predictions, loss = model.predict(X_test, y_test, verbose=verbose)
     return predictions, loss
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='Graph saliency maps with GCNs')
@@ -62,6 +65,11 @@ if __name__ == '__main__':
     if args.model_path != None:
         assert os.path.exists(args.model_path), \
               args.model_path + ' does not exist'
+        print('Running in training mode')
+        print('')
+    else:
+        print('Running in training mode')
+        print('')
        
     # Read and print the config file   
     conf_dict = read_config_file(args.config)
@@ -87,13 +95,24 @@ if __name__ == '__main__':
     
     # Train a model if no model provided
     if args.model_path == None:
-        print('Running in training mode')
-        print('')
+        print('Training has started...')
         t_accuracy, t_loss, _, _, _ = train(X_train, y_train, X_val, y_val, 
                                             model, True)    
-    else:
-        print('Running in test mode')
-        print('')
     
     # Test a model
+    print('Testing model...')
     predictions, loss = test(X_test, y_test, model, True)
+    
+    # Acquire class avtivations for all test subjects
+    print('Compute CAMs for all subjects...')
+    cams_op_0, _ = cam_multiple_images(X_test, y_test, 0, model,
+                                       graph_struct=graph_struct)    
+    cams_op_1, _ = cam_multiple_images(X_test, y_test, 1, model,
+                                       graph_struct=graph_struct)
+    
+    # Obtain population-level saliency maps 
+    print('Compute population-level saliency maps ..')
+    counts, _ = argmax_k(cams_op_0, k=3, d=conf_dict['d'])
+    graph_saliency_0 = compute_roi_frequency(counts, d=conf_dict['d'])
+    counts, _ = argmax_k(cams_op_1, k=3, d=conf_dict['d'])
+    graph_saliency_1 = compute_roi_frequency(counts, d=conf_dict['d'])
