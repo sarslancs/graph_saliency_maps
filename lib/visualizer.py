@@ -26,5 +26,6 @@ def monitor_training(t_accuracy, t_loss, v_accuracy, v_loss):
     plt.show()
     
     
+
     
     

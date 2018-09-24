@@ -66,7 +66,7 @@ if __name__ == '__main__':
     if args.model_path != None:
         assert os.path.exists(args.model_path), \
               args.model_path + ' does not exist'
-        print('Running in training mode...')
+        print('Running in test mode...')
         print('')
     else:
         print('Running in training mode...')

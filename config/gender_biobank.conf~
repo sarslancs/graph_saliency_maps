@@ -25,8 +25,7 @@ indexing 		= 'column'
 conn_tag 		= '25753_2_0' # type of network modelling applied to rs-fMRI functional connectivity. See http://www.fmrib.ox.ac.uk/ukbiobank/ for details
 coarsening_levels     	= 0 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
 number_edges          	= 10 # k of knn
-metric                	= 'correlation' # only needed if adj_path is None
-seed 			= 101 # Keep it the same for reproducible data splits
+metric                	= 'correlation' # metric of knn
 
 # Model parameters
 num_classes 		= 2  # number of classes

@@ -61,8 +61,7 @@ def load_params_from_config(conf_dict, n_train, trained_model_dir=None):
     params['decay_rate']     = conf_dict['decay_rate'] 
     params['momentum']       = conf_dict['momentum'] 
     params['decay_steps']	= n_train / params['batch_size']
-    params['seed']           = conf_dict['seed']    
-    
+  
     
     if trained_model_dir == None:
         params['dir_name'] = conf_dict['log_dir']

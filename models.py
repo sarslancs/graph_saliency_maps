@@ -560,7 +560,7 @@ class cgcnn(base_model):
     """
     def __init__(self, L, F, K, p, num_classes, C, d=1, filter='chebyshev5', 
                  brelu='b1relu', pool='mpool1', num_steps=1000, 
-                 learning_rate=0.1, decay_rate=0.95, decay_steps=None, seed=0,
+                 learning_rate=0.1, decay_rate=0.95, decay_steps=None, 
                  momentum=0.9, regularization=0, dropout=0, batch_size=100, 
                  eval_frequency=200, dir_name=''):
         super(cgcnn, self).__init__()
@@ -623,7 +623,7 @@ class cgcnn(base_model):
         self.filter = getattr(self, filter)
         self.brelu = getattr(self, brelu)
         self.pool = getattr(self, pool)
-        self.seed = seed
+
         
         # Build the computational graph.
         self.build_graph(M_0, d)

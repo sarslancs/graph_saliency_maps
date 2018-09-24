@@ -18,13 +18,10 @@ import os
 
 from lib.mnist_utils import (read_mnist_data, get_mnist_test_data, 
                              get_mnist_train_data, get_mnist_validation_data,
-                             generate_graph_structure)
+                             generate_graph_structure, cam_multiple_images)
 from lib.visualizer import monitor_training
 from lib.config_utils import (read_config_file, print_config, 
                               load_params_from_config)
-from lib.data_utils import get_biobank_data
-
-from lib.cam_utils import argmax_k, compute_roi_frequency, cam_multiple_images
 
 def train(X_train, y_train, X_val, y_val, model, verbose=False):
     '''
@@ -68,7 +65,7 @@ if __name__ == '__main__':
     if args.model_path != None:
         assert os.path.exists(args.model_path), \
               args.model_path + ' does not exist'
-        print('Running in training mode...')
+        print('Running in test mode...')
         print('')
     else:
         print('Running in training mode...')
@@ -78,18 +75,19 @@ if __name__ == '__main__':
     conf_dict = read_config_file(args.config)
     print_config(conf_dict)
     
+    # Generate underyling graph structure W and Laplacian matrix L
+    graph_struct = generate_graph_structure(conf_dict, conf_dict['graph_file'])
+    laplacians = graph_struct['laplacians']
+    
     # Load the MNIST data 
     mnist = read_mnist_data(conf_dict, one_hot=False)
     
     # Generate train, test, validation datasets. 
-    X_test, y_test = get_mnist_test_data(mnist)  
-    X_train, y_train = get_mnist_train_data(mnist)
-    X_val, y_val = get_mnist_validation_data(mnist)
+    X_test, y_test = get_mnist_test_data(mnist, graph_struct)  
+    X_train, y_train = get_mnist_train_data(mnist, graph_struct)
+    X_val, y_val = get_mnist_validation_data(mnist, graph_struct)
         
-    # Generate underyling graph structure W and Laplacian matrix L
-    graph_struct = generate_graph_structure(conf_dict)
-    laplacians = graph_struct['laplacians']
-    
+        
     # Load model parameters for GCN     
     params = load_params_from_config(conf_dict, len(X_train), args.model_path)
     
@@ -105,13 +103,13 @@ if __name__ == '__main__':
     # Test a model
     print('Testing model...')
     predictions, loss = test(X_test, y_test, model, True)
-#    
-#    # Acquire class avtivations for all test subjects
-#    print('Computing CAMs for all subjects...')
-#    cams_op_0, _ = cam_multiple_images(X_test, y_test, 0, model,
-#                                       graph_struct=graph_struct)    
-#    cams_op_1, _ = cam_multiple_images(X_test, y_test, 1, model,
-#                                       graph_struct=graph_struct)
+    
+    # Acquire class avtivations for all test subjects
+    print('Computing CAMs for digit 8...')
+    digit = 8
+    num = 200
+    cam_all, im_all = cam_multiple_images(X_test, y_test, digit, num, 
+                                          graph_struct, model)
 #    
 #    # Obtain population-level saliency maps 
 #    print('Generating population-level saliency maps ..')

@@ -14,23 +14,25 @@
 
 import os, time, datetime
 
-# Image directories (currently not required)
-data_dir 	= './data/MNIST_data'
+# Environmental variables
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+
+# Data loading setup 
+data_dir 		= './data/MNIST_data'
+graph_file 		= data_dir + '/graph.pkl'
 
 # Graph/data parameters
-n_supervertices 	= 784 # number of nodes in underlying graph
-coarsening_levels       = 0 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
+coarsening_levels       = 4 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
 number_edges          	= 8 # to define neighbourhood
 metric                	= 'euclidean' # measure similiarty in graph
 d 		     	= 1 # dimensionality of signals
-seed 			= 101 # Keep it the same for reproducible data splits
 
 # Model parameters
 num_classes 		= 10  # number of classes
-conv_depth 		= [2, 2, 1] # how many conv layers before applying max pooling?
+conv_depth 		= [1, 1, 1] # how many conv layers before applying max pooling?
 filters 		= [32, 64, 128] # number of filters per layer
 K_order 		= [25, 25, 25] # list of polynomial orders, i.e. filter sizes or number of hopes
-strides 		= [1, 1, 1] # pooling size per layer (should be 1 - no pooling or a power of 2 - reduction by 2 at each coarser level)
+strides 		= [4, 4, 1] # pooling size per layer (should be 1 - no pooling or a power of 2 - reduction by 2 at each coarser level)
 bias			= 'b1relu'  # type of bias to use, 'b1' for one bias per filter or 'b2' for one bias per vertex per filter
 pool			= 'mpool1' # pooling, 'mpool' for max pooling or 'apool' for average pooling
 dropout			= 0.5 # dropout for fc layers, probability to keep hidden neurons (no dropout with 1)
@@ -43,11 +45,10 @@ regularization 		= 5e-4 # weight decay
 decay_rate 		= 1 #(default=1, no change) reduce learning rate by a factor of 0.5 every time validation accuracy drops in two consecutive eval steps
 eval_frequency 		= 100 # evaluate model every this many steps
 batch_size 		= 100 # train batch size
-num_steps		= 3000 # number of steps (each step trains for a mini-batch)
+num_steps		= 2000 # number of steps (each step trains for a mini-batch)
 
 # Logging
-time_stamp 		= datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
-log_dir 		= './log/mnist_graph_model_' + time_stamp 
+log_dir 		= './log/mnist_graph_model_' + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M') # for model checkpoints and learning monitoring output
 
 
 
