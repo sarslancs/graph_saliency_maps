@@ -13,19 +13,20 @@
 # copies or substantial portions of the Software.
 
 
-import os, random
+import os, random, time, datetime
 
 # Data paths
 data_dir 		= '/vol/biobank/12579/brain/fmri' # imaging data directory 
 csv_path 		= '/vol/biobank/12579/brain/ukb8972_extracted.csv' # path to the csv file where data attributes will be read from
 
 # Graph/data parameters
-data_field 		='31-0.0' # UK biobank data field
+data_field 		= '31-0.0' # UK biobank data field
 indexing 		= 'column'
 conn_tag 		= '25753_2_0' # type of network modelling applied to rs-fMRI functional connectivity. See http://www.fmrib.ox.ac.uk/ukbiobank/ for details
 coarsening_levels     	= 0 # 4 allows two max-pooling of size 4 x 4, if 0 no coarsening 
 number_edges          	= 10 # k of knn
 metric                	= 'correlation' # metric of knn
+seed 			= 101 # For a reproducible data split
 
 # Model parameters
 num_classes 		= 2  # number of classes
@@ -49,14 +50,13 @@ eval_frequency 		= 10 # evaluate model every this many steps
 # Dataset-specific parameters 
 num_subjects 		= -1 # number of subjects to use, -1 for all
 num_images_per_class	= 100 # number of images per class
-d 			= 55	
-batch_size 		= num_images_per_class * num_classes 
+d 			= 55 # dimensionality of signal	
+batch_size 		= num_images_per_class * num_classes # batch size
 test_ratio		= 0.2 # Half of it is used for validation
-
+top_k 			= 1 # top k regions contributing most to decision of model
+ 
 # Logging
-import time, datetime
-time_stamp 		= datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M')
-log_dir 		= './log/sex_biobank_model_' + time_stamp 
+log_dir 		= './log/sex_biobank_model_' + datetime.datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d-%H-%M') 
 
 
 
