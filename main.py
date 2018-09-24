@@ -16,6 +16,8 @@ import models
 
 import os
 
+import numpy as np
+
 from lib.visualizer import monitor_training
 from lib.config_utils import (read_config_file, print_config, 
                               load_params_from_config)
@@ -113,7 +115,15 @@ if __name__ == '__main__':
     
     # Obtain population-level saliency maps 
     print('Generating population-level saliency maps ..')
-    counts, _ = argmax_k(cams_op_0, k=3, d=conf_dict['d'])
+    counts, _ = argmax_k(cams_op_0, k=conf_dict['top_k'], d=conf_dict['d'])
     graph_saliency_0 = compute_roi_frequency(counts, d=conf_dict['d'])
-    counts, _ = argmax_k(cams_op_1, k=3, d=conf_dict['d'])
+    counts, _ = argmax_k(cams_op_1, k=conf_dict['top_k'], d=conf_dict['d'])
     graph_saliency_1 = compute_roi_frequency(counts, d=conf_dict['d'])
+    
+    # Print top salient ROIs
+    graph_saliency = graph_saliency_0 + graph_saliency_1
+    top_rois = graph_saliency.argsort()[-4:][::-1] + 1
+    contribution = sorted(graph_saliency / sum(graph_saliency))[-4::][::-1]
+    np.set_printoptions(precision=2)
+    print('ROIs: {} -- contributes by (%) {}'.format(list(top_rois), 
+                                                      np.array(contribution))) 
