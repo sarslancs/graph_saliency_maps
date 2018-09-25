@@ -16,7 +16,7 @@ The code is released under the terms of the [MIT license](https://github.com/sar
 Our implementation is integrated to the spectral convolutional network codebase provided in [this repository](https://github.com/mdeff)
 
 ## Results
-Click the below picture or scan the QR code to see the method on action (you will be directed to our Youtube channel).
+Click the below picture or scan the QR code to see the method in action (you will be directed to our Youtube channel).
 [![Audi R8](http://gdurl.com/yHO9G)](https://www.youtube.com/watch?v=F7K-8P-OcRs "Graph saliency maps with spectral convolutional networks")
 
 ## Installation
