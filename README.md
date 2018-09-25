@@ -49,8 +49,9 @@ To run the model in test mode (i.e. via a pre-trained model):
    ./log/sex_biobank_model_2018-09-24-13-01`
 
 ## Contact
-https://twitter.com/salimarslan
-name_on_github@gmail.com
+Send an e-mail to [username_on_github]@gmail.com. You may also find me on [twitter](https://twitter.com/salimarslan).  
+
+
 
 
 	
