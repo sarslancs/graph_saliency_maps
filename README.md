@@ -29,4 +29,5 @@ Click the below picture or scan the QR code to see the method on action (you wil
 	pip install -r requirements.txt  # or make install
 	```
 
-3. We tested the code on `tensorflow 1.3.0` and `tensorflow-gpu 1.4.1` on a workstation running `Ubuntu 16.04`. The CUDA version was `release 8.0, V8.0.61`.
+3. The codebase is based on `Python 2.7.14, Anaconda custom (64-bit)`. We tested the code on `tensorflow 1.3.0` , `tensorflow-gpu 1.4.1`, and `tensorflow-tensorboard 0.1.8` on a workstation running `Ubuntu 16.04`. The CUDA version was `release 8.0, V8.0.61`. At the time of release, versions of other libraries were as follows: `numpy 1.12.1, sklearn 0.19.1, scipy 1.1.0, matplotlib 2.2.2`.
+
