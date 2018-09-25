@@ -31,3 +31,22 @@ Click the below picture or scan the QR code to see the method on action (you wil
 
 3. The codebase is based on `Python 2.7.14, Anaconda custom (64-bit)`. We tested the code on `tensorflow 1.3.0` , `tensorflow-gpu 1.4.1`, and `tensorflow-tensorboard 0.1.8` on a workstation running `Ubuntu 16.04`. The CUDA version was `release 8.0, V8.0.61`. At the time of release, versions of other libraries were as follows: `numpy 1.12.1, sklearn 0.19.1, scipy 1.1.0, matplotlib 2.2.2`.
 
+## How to?
+In order to get started, you need to provide:
+
+ 1. A config file, where all model hyper-parameters, data paths, and training/test parameters are specified. While we have provided one, it depends on the UK Biobank data, which although is freely available, may not be directly obtained online. You have to first register your intent to use the data and undergo an application process. 
+ 2. Datasets for training, validation, and test of dimensionality `num_subjects x num_regions x num_signals`.  
+ 3. An adjacency matrix of size `num_regions x num_regions` that represents the underlying graph and is subsequently used to compute the Laplacian matrix. If not provided, the code computes one based on the train data.
+
+To run the model in training mode:
+ - `python main.py -c ./config/gender_biobank.conf`
+
+To run the model in test mode (i.e. via a pre-trained model):
+ - `python main.py -c ./config/gender_biobank.conf -m
+   ./log/sex_biobank_model_2018-09-24-13-01`
+
+## Contact
+https://twitter.com/salimarslan
+
+	
+	
