@@ -5,7 +5,7 @@ The code in this repository provides the implementation of an activation-based v
 
 - **Salim Arslan**, Sofia Ira Ktena, Ben Glocker, Daniel Rueckert, [Graph Saliency Maps through Spectral Convolutional Networks: Application to Sex Classification with Brain Connectivity](https://arxiv.org/abs/1806.01764)
 
-The paper is presented at [Second International Workshop on Graphs in Biomedical Image Analysis](https://grail-miccai.github.io/), ornaised as a part of [Medical Image Computing and Computer-Assisted Interventions (MICCAI), 2018, Granada](https://miccai2018.org/en/Default.asp?). 
+The paper is presented at the [Second International Workshop on Graphs in Biomedical Image Analysis](https://grail-miccai.github.io/), organised as a part of [Medical Image Computing and Computer-Assisted Interventions (MICCAI) 2018 in Granada](https://miccai2018.org/en/Default.asp?). 
 
 Here are the [slides](#), [poster](https://www.researchgate.net/profile/Salim_Arslan/publication/327751019_Poster/data/5ba24ac945851574f7d66901/arslan-salim-poster-A0.pdf) (which has won the best poster award!) and a copy of the [paper](https://arxiv.org/abs/1806.01764). The visual abstract is provided below: 
 
