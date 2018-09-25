@@ -123,7 +123,4 @@ if __name__ == '__main__':
     # Print top salient ROIs
     graph_saliency = graph_saliency_0 + graph_saliency_1
     top_rois = graph_saliency.argsort()[-4:][::-1] + 1
-    contribution = sorted(graph_saliency / sum(graph_saliency))[-4::][::-1]
-    np.set_printoptions(precision=2)
-    print('ROIs: {} -- contributes by (%) {}'.format(list(top_rois), 
-                                                      np.array(contribution))) 
+    print('ROIs: {} '.format(list(top_rois)))
