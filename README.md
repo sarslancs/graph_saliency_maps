@@ -50,6 +50,8 @@ To run the model in test mode (i.e. via a pre-trained model):
 
 ## Contact
 https://twitter.com/salimarslan
+name_on_github@gmail.com
+
 
 	
 	
