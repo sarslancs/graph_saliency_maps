@@ -7,7 +7,7 @@ The code in this repository provides the implementation of an activation-based v
 
 The paper is presented at the [Second International Workshop on Graphs in Biomedical Image Analysis](https://grail-miccai.github.io/), organised as a part of [Medical Image Computing and Computer-Assisted Interventions (MICCAI) 2018 in Granada](https://miccai2018.org/en/Default.asp?). 
 
-Here are the [slides](#), [poster](https://www.researchgate.net/profile/Salim_Arslan/publication/327751019_Poster/data/5ba24ac945851574f7d66901/arslan-salim-poster-A0.pdf) (which has won the best poster award!) and a copy of the [paper](https://arxiv.org/abs/1806.01764). The visual abstract is provided below: 
+Here are the [slides](https://www.researchgate.net/profile/Salim_Arslan/publication/327867764_Slides/data/5baa4630299bf13e604b223a/slides.pdf), [poster](https://www.researchgate.net/profile/Salim_Arslan/publication/327751019_Poster/data/5ba24ac945851574f7d66901/arslan-salim-poster-A0.pdf) (which has won the best poster award!) and a copy of the [paper](https://arxiv.org/abs/1806.01764). The visual abstract is provided below: 
 
 ![Graph saliency maps with spectral convolutional networks](http://gdurl.com/HACf)
 
